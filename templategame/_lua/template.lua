@@ -5,6 +5,8 @@ VERSION_NUMBER = "1.00"
 ALLOW_AUTORUN_LUA = true
 ALLOW_MANUALLY_DEFINED_LUA = true
 
+SETUP_TABLE = {"ini","dat"} --makes sure files with these extensions will be setup for the application.
+
 local EXE_NAME = "doesnthaveone.exe"
 
 --CREATE_PROCESS(EXE_NAME,"")

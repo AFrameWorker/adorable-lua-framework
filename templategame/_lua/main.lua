@@ -103,17 +103,17 @@ function onOpenProcess(processid)
 	INJECT_LIBRARIES()
 	LAST_PROCESS = GET_BASEADDR()
 	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end
-	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..[[_dofile.lua]]) end
+	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..[[_dofile.lua]]) end --possibly make a define in the future where you can define a custom name for this file elsewhere
 end
 
 function MAIN_Setup(exe)
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.dll")) do if string.gsub(args,TEMP_DIRECTORY(),"") ~= "lua53-64.dll" then os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.asi")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.acd")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.aci")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.ini")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.dat")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.code")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..exe) end
+	
+	if SETUP_TABLE then
+		for _,setupvalue in pairs(SETUP_TABLE) do for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*."..setupvalue)) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end end 
+	end
+	
+	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.code")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..exe) end --always last to ensure it doesnt run before the other setups have finished.
 	return true
 end
 
@@ -141,9 +141,10 @@ end
 local HOOKED
 local thread
 local timeout_count = 0
-function CREATE_PROCESS(exe,params)
+function CREATE_PROCESS(exe,params,updaterate)
 	LAST_PROCESS = exe
 	LAST_PARAMS = params
+	if not updaterate then updaterate = 10 end
 	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) end
 	while not DOES_SUB_STATIC_DIRECTORY_EXIST(exe) do CREATE_SUB_STATIC_DIRECTORY(exe) sleep(10) end
 	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
@@ -160,7 +161,7 @@ function CREATE_PROCESS(exe,params)
 		timeout_count = 0
 		while IS_GAME_HOOKED() and HOOKED do
 			GAME_UPDATE()
-			sleep(10)
+			sleep(updaterate)
 		end
 		while not IS_GAME_HOOKED() and HOOKED do onTerminatedProcess() end
 		while IS_GAME_HOOKED() and not HOOKED do break end --breaks while loop, can allow for restarting game executable without ending CE thread
@@ -215,16 +216,16 @@ function DOES_TIMER_EXIST(name)
 end
 
 function DELAYED_CALL(int,name)
-int = tonumber(int)
-if not int or not name then return end
-if timers[name] then return end
-timers[name] = createTimer()
-timers[name].Interval = int
-timers[name].OnTimer = function()
-_G[name]()
-timers[name].destroy()
-timers[name] = nil
-end
+	int = tonumber(int)
+	if not int or not name then return end
+	if timers[name] then return end
+	timers[name] = createTimer()
+	timers[name].Interval = int
+	timers[name].OnTimer = function()
+		_G[name]()
+		timers[name].destroy()
+		timers[name] = nil
+	end
 end
 
 function DESTROY_ALL_TIMERS()
