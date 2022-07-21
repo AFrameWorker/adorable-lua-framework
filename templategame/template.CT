@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="42">
+  <CheatEntries/>
+  <UserdefinedSymbols/>
+  <LuaScript>compiled = false
+local gamelua = "template"
+if not compiled then return end
+
+local USE_LC_FILES = true
+local directory = TrainerOrigin..[[\lua]]
+local tempdir = string.gsub(getAutorunPath(),[[\autorun\]],[[\]])
+
+local function dofile_lc(args)
+local FILE = io.open(args,"r")
+decodeFunction(FILE:read("*all"))()
+FILE:close()
+FILE = nil
+os.remove(args)
+end
+
+function require(arg)
+for _,args in pairs(getFileList(tempdir,arg..[[.lua.lc]])) do
+dofile_lc(args)
+return
+end
+
+for _,args in pairs(getFileList(directory,arg..[[.lua]],true)) do
+dofile(args)
+return
+end
+end
+
+if not USE_LC_FILES then
+--dofile(directory..gamelua)
+else
+require(gamelua)
+end
+</LuaScript>
+</CheatTable>

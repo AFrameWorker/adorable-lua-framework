@@ -127,6 +127,12 @@ function onTerminatedProcess() --selfmade
 	closeCE()
 end
 
+function CLOSE_PROCESS()
+	DESTROY_ALL_TIMERS()
+	UNHOOK_PROCESS()
+	closeCE()
+end
+
 function GET_DECIMAL_ADDRESS(addr)
 	return getAddress(addr) or nil
 end
@@ -205,6 +211,19 @@ end
 function DOES_TIMER_EXIST(name)
 	if not name then return false end
 	if not timers[name] then return false else return true end
+end
+
+function DELAYED_CALL(int,name)
+int = tonumber(int)
+if not int or not name then return end
+if timers[name] then return end
+timers[name] = createTimer()
+timers[name].Interval = int
+timers[name].OnTimer = function()
+_G[name]()
+timers[name].destroy()
+timers[name] = nil
+end
 end
 
 function DESTROY_ALL_TIMERS()
