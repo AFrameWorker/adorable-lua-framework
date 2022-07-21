@@ -112,6 +112,7 @@ function MAIN_Setup(exe)
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.acd")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.aci")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.ini")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
+	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.dat")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.code")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..exe) end
 	return true
 end
