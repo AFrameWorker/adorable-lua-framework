@@ -30,7 +30,7 @@ Next, we need to modify templategame.lua (ideally, you should rename this to som
 
 Here's some example code you can use:
 
-```
+```lua
 require 'main'
 
 GAME_NAME = "TheGame" --The name of the game, though you don't have to define this.
