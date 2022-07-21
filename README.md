@@ -53,4 +53,4 @@ Follow the compilation process as I explained in the beginning, replace the old 
 # What else can I shove into _luacompiled?
 
 You can add .acs files (.dll's renamed to .acs) | These will get manually injected by the CE Process in the background.
-You can add .dll files, asi's, acd's, ini's, dat's, aci's, and whatever else you define in MAIN_Setup() in main.lua.
+You can add .dll files, asi's, acd's, ini's, dat's, aci's, and whatever else you define in SETUP_TABLE = {}.
