@@ -24,7 +24,7 @@ You're able to make your own software, you're able to modify existing PC games a
 
 # Example of game modding
 
-Say, you want to give a game full Lua moddability... Well, you can easily do that with ALF (adorable-lua-framework). Simply copy the templategame folder and rename the folder to whatever you want, then grab the executable of the game you'd like to modify, and shove it into _luacompiled.
+Say, you want to give a game full Lua moddability... Well, you can easily do that with ALF (adorable-lua-framework). Simply copy the templategame folder and rename the folder to whatever you want, then grab the executable of the game you'd like to modify, and shove it into _luacompiled. And then RENAME the executable so it ends with a .code extension. (As per main.lua's MAIN_Setup() function)
 
 Next, we need to modify templategame.lua (ideally, you should rename this to something else.)
 
