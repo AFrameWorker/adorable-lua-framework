@@ -1,6 +1,7 @@
 local LAST_PROCESS
 local LAST_PARAMS
 local curseed = math.randomseed(os.time())
+if not DOFILE_FILE_NAME then DOFILE_FILE_NAME = "_dofile.lua" end
 
 function GET_CURRENT_SEED()
 return curseed or nil	
@@ -58,7 +59,7 @@ function LUA_DIR()
 end
 
 function IS_DOFILE_AVAILABLE()
-	return getFileList(LUA_DIR(),"_dofile.lua")[1] or nil --fix this and make it into a define
+	return getFileList(LUA_DIR(),DOFILE_FILE_NAME)[1] or nil --fix this and make it into a define
 end
 
 function GET_ALL_AUTORUN_LUAS()
@@ -109,7 +110,7 @@ end
 function onOpenProcess(processid)
 	INJECT_LIBRARIES(LAST_PROCESS)
 	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end
-	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..[[_dofile.lua]]) end --possibly make a define in the future where you can define a custom name for this file elsewhere
+	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..DOFILE_FILE_NAME) end --possibly make a define in the future where you can define a custom name for this file elsewhere
 end
 
 function MAIN_Setup(exe)
