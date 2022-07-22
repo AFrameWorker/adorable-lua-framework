@@ -38,7 +38,9 @@ VERSION_NUMBER = "0.00" --version number, if you want it.
 ALLOW_AUTORUN_LUA = true --allowing lua files to be automatically ran externally through /lua/autorun/
 ALLOW_MANUALLY_DEFINED_LUA = true --allowing external loading of lua files in /lua/_dofile.lua
 
-local EXE_NAME = "yourgame.exe" --the exe name of the game you want to modify
+SETUP_TABLE = {"asi","acd","aci","ini","dat"} --extensions of files to be setup and used by the executable
+
+local EXE_NAME = "yourgame" --the exe name of the game you want to modify
 
 function GAME_UPDATE()
   --code that can change and update every 10ms (changable in main.lua)
