@@ -1,5 +1,10 @@
 local LAST_PROCESS
 local LAST_PARAMS
+local curseed = math.randomseed(os.time())
+
+function GET_CURRENT_SEED()
+return curseed or nil	
+end
 
 function GET_REGISTRY_VALUE(value)
 	return getSettings(LAST_PROCESS).Value[value] or nil
@@ -53,7 +58,7 @@ function LUA_DIR()
 end
 
 function IS_DOFILE_AVAILABLE()
-	return getFileList(LUA_DIR(),"_dofile.lua")[1] or nil
+	return getFileList(LUA_DIR(),"_dofile.lua")[1] or nil --fix this and make it into a define
 end
 
 function GET_ALL_AUTORUN_LUAS()
@@ -68,11 +73,13 @@ function RUN_AUTORON_LUAS()
 	for _,args in pairs(GET_ALL_AUTORUN_LUAS()) do dofile(args) end
 end
 
-function INJECT_LIBRARIES()
+function INJECT_LIBRARIES(exe)
 	reinitializeSymbolhandler()
-	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.acs")) do
-		injectLibrary(args,true)
+	pause()
+	for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
+		injectLibrary(args,false)
 	end
+	unpause()
 end
 
 function GET_CLASSNAME_FROM_FOREGROUND_WINDOW()
@@ -100,15 +107,14 @@ function RESTART_PROCESS()
 end
 
 function onOpenProcess(processid)
-	INJECT_LIBRARIES()
-	LAST_PROCESS = GET_BASEADDR()
+	INJECT_LIBRARIES(LAST_PROCESS)
 	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end
 	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..[[_dofile.lua]]) end --possibly make a define in the future where you can define a custom name for this file elsewhere
 end
 
 function MAIN_Setup(exe)
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.dll")) do if string.gsub(args,TEMP_DIRECTORY(),"") ~= "lua53-64.dll" then os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end end
-	
+	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.acs")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
 	if SETUP_TABLE then
 		for _,setupvalue in pairs(SETUP_TABLE) do for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*."..setupvalue)) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end end 
 	end
@@ -118,7 +124,7 @@ function MAIN_Setup(exe)
 end
 
 function MAIN_Cleanup(exe)
-	for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe))) do os.remove(args) end
+	while getFileList(STATIC_SUB_DIRECTORY(exe))[1] do for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe))) do os.remove(args) end sleep(1) end
 	return true
 end
 
@@ -138,10 +144,22 @@ function GET_DECIMAL_ADDRESS(addr)
 	return getAddress(addr) or nil
 end
 
+function FIX_EXE_VARIABLE(exe)
+	exe = string.gsub(exe,".exe","")
+	exe = exe..[[ce.exe]]
+	return exe
+end
+
+function IS_AVAILABLE(exe)
+	return getFileList(STATIC_SUB_DIRECTORY(exe),exe)[1] or nil
+end
+
 local HOOKED
 local thread
 local timeout_count = 0
 function CREATE_PROCESS(exe,params,updaterate)
+	if not exe then return end
+	exe = FIX_EXE_VARIABLE(exe)
 	LAST_PROCESS = exe
 	LAST_PARAMS = params
 	if not updaterate then updaterate = 10 end
@@ -149,6 +167,7 @@ function CREATE_PROCESS(exe,params,updaterate)
 	while not DOES_SUB_STATIC_DIRECTORY_EXIST(exe) do CREATE_SUB_STATIC_DIRECTORY(exe) sleep(10) end
 	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
 	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(1) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
+	while not IS_AVAILABLE(exe) do sleep(1) end
 	createThread(function() --allows main thread to run so that we can use timers, yay.
 		ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
 		while not IS_GAME_HOOKED() and not HOOKED do 

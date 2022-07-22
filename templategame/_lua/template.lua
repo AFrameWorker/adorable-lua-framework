@@ -7,7 +7,7 @@ ALLOW_MANUALLY_DEFINED_LUA = true
 
 SETUP_TABLE = {"ini","dat"} --makes sure files with these extensions will be setup for the application.
 
-local EXE_NAME = "doesnthaveone.exe"
+local EXE_NAME = "doesnthaveone"
 
 --CREATE_PROCESS(EXE_NAME,"")
 
