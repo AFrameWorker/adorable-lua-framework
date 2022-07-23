@@ -75,14 +75,14 @@ function LUA_DIR()
 	end
 	
 	function INJECT_LIBRARIES(exe)
-		reinitializeSymbolhandler()
-		pause()
+		reinitializeSymbolhandler() --gets the process to have a little bit of uptime before being paused (mere milliseconds)
+		pause() --pauses the process
 		for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
-			injectLibrary(args,false)
+			injectLibrary(args,false) --injects all acs's as fast as possible without enumeration
 		end
-		reinitializeSymbolhandler()
-		waitForPDB()
-		unpause()
+		--reinitializeSymbolhandler() --reinit the symbol handler
+		--waitForSections() --wait for all symbols to load and enumerate
+		unpause() --continue process
 	end
 	
 	function GET_CLASSNAME_FROM_FOREGROUND_WINDOW()
