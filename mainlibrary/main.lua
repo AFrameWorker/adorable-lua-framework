@@ -97,7 +97,7 @@ function INJECT_LIBRARIES(exe)
 		pause()
 		for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
 			injectLibrary(args,true) --injects all acs's as fast as possible without enumeration (This function has a weird tendency to sometimes freeze either the CE process or absolutely murder the target process. I do not understand why) 
-			sleep(1)
+			sleep(10)
 		end
 		reinitializeSymbolhandler()
 		unpause()
