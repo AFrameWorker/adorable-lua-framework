@@ -1,4 +1,5 @@
 
+-- this library sucks
 local ENUMERATE_RETRY_COUNT = 0
 local ENUMERATE_MAX_RETRIES = 25
 function ERROR_HANDLER(call,...)
