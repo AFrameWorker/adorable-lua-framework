@@ -113,21 +113,28 @@ end
 
 function INJECT_LIBRARIES(exe)
 	CREATE_INJECTION_TIMEOUT()
-		pause()
-		for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
-			injectLibrary(args,true) --injects all acs's as fast as possible without enumeration
-			inject_count = 0
-		end
-		inject_status = true
-		unpause()
+	pause()
+	for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
+		injectLibrary(args,true) --injects all acs's as fast as possible without enumeration
+		inject_count = 0
+	end
+	inject_status = true
+	unpause()
 end
 
 function GET_CLASSNAME_FROM_FOREGROUND_WINDOW()
 	return getWindowClassName(getForegroundWindow()) or nil
 end
 
-function CHANGE_PROCESS_WINDOW_TITLE(findwindow,replacementtext) --findwindow needs to contain either the classname or the current title.
-	executeCodeLocalEx('user32.SetWindowTextA',findWindow(nil,findtext), replacementtext)
+function FOCUS_PROCESS_WINDOW(classname)
+	if not classname then return end
+	executeCodeLocalEx('user32.ShowWindow', findWindow(classname,nil), SW_MAXIMIZE)
+end
+
+function CHANGE_PROCESS_WINDOW_TITLE(classname,text) --findwindow needs to contain either the classname or the current title.
+	if not text then return end
+	if not classname then return end
+	executeCodeLocalEx('user32.SetWindowTextA',findWindow(classname,nil), text)
 end
 
 function AUTORUN_LUA_DIR()
@@ -223,21 +230,21 @@ function CREATE_PROCESS(exe,params,updaterate)
 	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
 	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(10) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
 	while not IS_AVAILABLE(exe) do sleep(10) end
-		main = createThread(function()
-			ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
-			while not readInteger(exe) do 
-				openProcess(exe)
-				timeout_count = timeout_count + 1
-				if timeout_count >= MAX_TIMEOUT then messageDialog("ERROR","The game failed to start. Please reinstall.",mtError,mbOK) onTerminatedProcess() return end
-				sleep(10)
-			end
-			while readInteger(exe) do
-				sleep(updaterate)
-				if UNHOOK then UNHOOK = nil return end
-				GAME_UPDATE()
-			end
-			while not readInteger(exe) do sleep(1) onTerminatedProcess() end
-		end)
+	main = createThread(function()
+		ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
+		while not readInteger(exe) do 
+			openProcess(exe)
+			timeout_count = timeout_count + 1
+			if timeout_count >= MAX_TIMEOUT then messageDialog("ERROR","The game failed to start. Please reinstall.",mtError,mbOK) onTerminatedProcess() return end
+			sleep(10)
+		end
+		while readInteger(exe) do
+			sleep(updaterate)
+			if UNHOOK then UNHOOK = nil return end
+			GAME_UPDATE()
+		end
+		while not readInteger(exe) do sleep(1) onTerminatedProcess() end
+	end)
 end
 
 function ATTACH_PROCESS(procname)
