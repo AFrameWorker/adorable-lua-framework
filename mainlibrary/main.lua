@@ -82,6 +82,7 @@ end
 
 function ENUMERATE_SYMBOLS()
 	reinitializeSymbolhandler() --reinit the symbol handler
+	waitForSections()
 	return true
 end
 
@@ -92,14 +93,26 @@ function ARE_BASE_MODULES_LOADED(exe)
 	return true
 end
 
+local inject_count = 0
+local max_inject_count = 4
+local inject_status = false
+function CREATE_INJECTION_TIMEOUT()
+	inject_status = false
+	inject_count = 0
+	injectionthread = createThread(function()
+		while inject_count < max_inject_count do sleep(100) if inject_status then return end inject_count = inject_count + 1 end
+		RESTART_PROCESS()
+	end)
+end
+
 function INJECT_LIBRARIES(exe)
-		reinitializeSymbolhandler()
+	CREATE_INJECTION_TIMEOUT()
 		pause()
 		for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe),"*.acs")) do
-			injectLibrary(args,true) --injects all acs's as fast as possible without enumeration (This function has a weird tendency to sometimes freeze either the CE process or absolutely murder the target process. I do not understand why) 
-			sleep(10)
+			injectLibrary(args,true) --injects all acs's as fast as possible without enumeration
+			inject_count = 0
 		end
-		reinitializeSymbolhandler()
+		inject_status = true
 		unpause()
 end
 
@@ -115,19 +128,32 @@ function AUTORUN_LUA_DIR()
 	return TrainerOrigin..[[lua\autorun\]]
 end
 
+local UNHOOK
+function UNHOOK_PROCESS()
+	UNHOOK = true
+	DESTROY_ALL_TIMERS()
+end
+
 function DESTROY_PROCESS()
 	ShellExecute("TASKKILL","/F /IM "..GET_BASEADDR(),"",false)
 end
 
+function RESTART_MAIN_PROCESS()
+	ShellExecute(GET_CURRENT_DIRECTORY()..[[\]]..LAST_PROCESS_NO_CE,LAST_PARAMS,GET_CURRENT_DIRECTORY())
+	closeCE()
+end
+
+RESTART_DELAY_GLOBAL = 250
 function RESTART_PROCESS()
-	DESTROY_ALL_TIMERS()
 	UNHOOK_PROCESS()
 	ShellExecute("TASKKILL","/F /IM "..LAST_PROCESS,"",false)
-	while IS_GAME_RUNNING(LAST_PROCESS) do sleep(1) end
-	CREATE_PROCESS(LAST_PROCESS_NO_CE,LAST_PARAMS)
+	while IS_GAME_RUNNING(LAST_PROCESS) do sleep(10) end
+	sleep(RESTART_DELAY_GLOBAL)
+	RESTART_MAIN_PROCESS()
 end
 
 function MAIN_Setup(exe)
+	while not DOES_SUB_STATIC_DIRECTORY_EXIST(exe) do sleep(10) CREATE_SUB_STATIC_DIRECTORY(exe) end
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.dll")) do if string.gsub(args,TEMP_DIRECTORY(),"") ~= "lua53-64.dll" then os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end end
 	for _,args in pairs(getFileList(TEMP_DIRECTORY(),"*.acs")) do os.rename(args,STATIC_SUB_DIRECTORY(exe)..[[\]]..string.gsub(args,TEMP_DIRECTORY(),"")) end
 	if SETUP_TABLE then
@@ -139,11 +165,11 @@ function MAIN_Setup(exe)
 end
 
 function MAIN_Cleanup(exe)
-	while getFileList(STATIC_SUB_DIRECTORY(exe))[1] do for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe))) do os.remove(args) end sleep(1) end
+	while getFileList(STATIC_SUB_DIRECTORY(exe))[1] do sleep(1) for _,args in pairs(getFileList(STATIC_SUB_DIRECTORY(exe))) do os.remove(args) end end
 	return true
 end
 
-function onTerminatedProcess() --selfmade
+function onTerminatedProcess() --selfmade (same as CLOSE_PROCESS() wtf)
 	DESTROY_ALL_TIMERS()
 	MAIN_Cleanup(LAST_PROCESS)
 	closeCE()
@@ -152,7 +178,6 @@ end
 function CLOSE_PROCESS()
 	DESTROY_ALL_TIMERS()
 	MAIN_Cleanup(LAST_PROCESS)
-	UNHOOK_PROCESS()
 	closeCE()
 end
 
@@ -170,16 +195,15 @@ function IS_AVAILABLE(exe)
 	return getFileList(STATIC_SUB_DIRECTORY(exe),exe)[1] or nil
 end
 
-local HOOKED
 local timeout_count = 0
 local hasLuaLoaded = false
 local debug_hook_test = 0
+local MAX_TIMEOUT = 500
 function onOpenProcess(processid)
-	HOOKED = true
-	timeout_count = 0
+	reinitializeSymbolhandler()
+	waitForSections()
 	INJECT_LIBRARIES(LAST_PROCESS)
-	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end
-	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..DOFILE_FILE_NAME) end
+	RELOAD_LUA_SCRIPTS()
 end
 
 function CREATE_PROCESS(exe,params,updaterate)
@@ -190,33 +214,24 @@ function CREATE_PROCESS(exe,params,updaterate)
 	LAST_PARAMS = params
 	if not updaterate then updaterate = 10 end
 	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) end
-	while not DOES_SUB_STATIC_DIRECTORY_EXIST(exe) do CREATE_SUB_STATIC_DIRECTORY(exe) sleep(10) end
 	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
-	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(1) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
-	while not IS_AVAILABLE(exe) do sleep(1) end
-	createThread(function() --allows main thread to run so that we can use timers, yay.
-		ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
-		while not readInteger(exe) and not HOOKED do 
-			openProcess(exe) --fastest way
-			timeout_count = timeout_count + 1 
-			if timeout_count >= 500 then messageDialog("ERROR","The game failed to start. Please reinstall.",mtError,mbOK) onTerminatedProcess() break end
-			sleep(10) 
-		end
-		HOOKED = true
-		timeout_count = 0
-		while readInteger(exe) and HOOKED do
-			GAME_UPDATE()
-			sleep(updaterate)
-		end
-		while not readInteger(exe) and HOOKED do onTerminatedProcess() end
-		while readInteger(exe) and not HOOKED do break end --breaks while loop, can allow for restarting game executable without ending CE thread
-	end)
-end
-
-function UNHOOK_PROCESS()
-	if not HOOKED then return end
-	DESTROY_ALL_TIMERS()
-	HOOKED = nil
+	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(10) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
+	while not IS_AVAILABLE(exe) do sleep(10) end
+		main = createThread(function()
+			ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
+			while not readInteger(exe) do 
+				openProcess(exe)
+				timeout_count = timeout_count + 1
+				if timeout_count >= MAX_TIMEOUT then messageDialog("ERROR","The game failed to start. Please reinstall.",mtError,mbOK) onTerminatedProcess() return end
+				sleep(10)
+			end
+			while readInteger(exe) do
+				sleep(updaterate)
+				if UNHOOK then UNHOOK = nil return end
+				GAME_UPDATE()
+			end
+			while not readInteger(exe) do sleep(1) onTerminatedProcess() end
+		end)
 end
 
 function ATTACH_PROCESS(procname)
