@@ -48,7 +48,7 @@ function GAME_UPDATE()
 end
 
 
-CREATE_PROCESS(EXE_NAME,"",updaterate)
+CREATE_PROCESS(EXE_NAME,"",updaterate) --updaterate defines how fast GAME_UPDATE() should be called each millisecond. 1000 = 1 second.
 ```
 
 Follow the compilation process as I explained in the beginning, replace the old executable in your game with your newly created one, and done! The game *should* run and you should now have a fully functional lua framework integrated. You can now add your own functions into "yourgame.lua" (previously templategame.lua). You can add as many internal scripts as you want. Scriptcompiler.exe will handle them all. Don't forget to run "applymain.exe" to apply the main library though. 
