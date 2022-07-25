@@ -44,11 +44,11 @@ SETUP_TABLE = {"asi","acd","aci","ini","dat"} --extensions of files to be setup 
 local EXE_NAME = "yourgame" --the exe name of the game you want to modify
 
 function GAME_UPDATE()
-  --code that can change and update every 10ms (changable in main.lua)
+  --code that can change and update every <updaterate>ms
 end
 
 
-CREATE_PROCESS(EXE_NAME,"")
+CREATE_PROCESS(EXE_NAME,"",updaterate)
 ```
 
 Follow the compilation process as I explained in the beginning, replace the old executable in your game with your newly created one, and done! The game *should* run and you should now have a fully functional lua framework integrated. You can now add your own functions into "yourgame.lua" (previously templategame.lua). You can add as many internal scripts as you want. Scriptcompiler.exe will handle them all. Don't forget to run "applymain.exe" to apply the main library though. 
