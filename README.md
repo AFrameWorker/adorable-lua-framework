@@ -47,7 +47,6 @@ function GAME_UPDATE()
   --code that can change and update every <updaterate>ms
 end
 
-
 CREATE_PROCESS(EXE_NAME,"",updaterate) --updaterate defines how fast GAME_UPDATE() should be called each millisecond. 1000 = 1 second.
 ```
 
