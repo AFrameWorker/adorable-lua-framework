@@ -2,7 +2,7 @@
 Make stuff, compile stuff... Stuff! Originally made for allowing easy modding through Lua on various games.
 
 
-# How to compile?
+# How do I compile?
 
 1. Download and install Cheat Engine 7.4
 2. "Download ZIP" on this repo and extract the files somewhere.
