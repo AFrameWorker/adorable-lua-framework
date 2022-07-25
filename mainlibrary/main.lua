@@ -86,6 +86,12 @@ function ENUMERATE_SYMBOLS()
 	return true
 end
 
+function MAKE_FORM_TRANSPARENT(form)
+	if not form then return end
+	form.setLayeredAttributes(0x000100, 255, LWA_COLORKEY )
+	form.Color = 0x000100
+end
+
 function ARE_BASE_MODULES_LOADED(exe)
 	if not readByte(exe) then return false end
 	if not readByte(getAddress(exe)+getModuleSize(exe)-1) then return false end
