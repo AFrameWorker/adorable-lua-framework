@@ -143,7 +143,9 @@ function AUTORUN_LUA_DIR()
 end
 
 local UNHOOK
+local HOOKED
 function UNHOOK_PROCESS()
+	HOOKED = nil
 	UNHOOK = true
 	DESTROY_ALL_TIMERS()
 end
@@ -195,6 +197,11 @@ function CLOSE_PROCESS()
 	closeCE()
 end
 
+function CLOSE_PROCESS_NO_CLEANUP()
+	DESTROY_ALL_TIMERS()
+	closeCE()
+end
+
 function GET_DECIMAL_ADDRESS(addr)
 	return getAddress(addr) or nil
 end
@@ -214,6 +221,8 @@ local hasLuaLoaded = false
 local debug_hook_test = 0
 local MAX_TIMEOUT = 500
 function onOpenProcess(processid)
+	if HOOKED then return end
+	HOOKED = true --preventing the rest of the code to be called more than once if onOpenProcess decides to be funny
 	reinitializeSymbolhandler()
 	waitForSections()
 	INJECT_LIBRARIES(LAST_PROCESS)
