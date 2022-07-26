@@ -126,8 +126,9 @@ function GET_CLASSNAME_FROM_FOREGROUND_WINDOW()
 	return getWindowClassName(getForegroundWindow()) or nil
 end
 
-function FOCUS_PROCESS_WINDOW(classname)
-	if not classname then return end
+function FOCUS_PROCESS_WINDOW(classname,windowtitle)
+	--if not classname and not windowtitle then return end
+	if not classname then classname = windowtitle end
 	executeCodeLocalEx('user32.ShowWindow', findWindow(classname,nil), SW_MAXIMIZE)
 end
 
