@@ -229,19 +229,9 @@ function onOpenProcess(processid)
 	RELOAD_LUA_SCRIPTS()
 end
 
-function CREATE_PROCESS(exe,params,updaterate)
+function HOOK_PROCESS(exe,updaterate)
 	if not exe then return end
-	LAST_PROCESS_NO_CE = exe
-	exe = FIX_EXE_VARIABLE(exe)
-	LAST_PROCESS = exe
-	LAST_PARAMS = params
-	if not updaterate then updaterate = 10 end
-	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) end
-	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
-	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(10) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
-	while not IS_AVAILABLE(exe) do sleep(10) end
 	main = createThread(function()
-		ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
 		while not readInteger(exe) do 
 			openProcess(exe)
 			timeout_count = timeout_count + 1
@@ -255,6 +245,29 @@ function CREATE_PROCESS(exe,params,updaterate)
 		end
 		while not readInteger(exe) do sleep(1) onTerminatedProcess() end
 	end)
+end
+
+function CREATE_PROCESS(exe,params,updaterate)
+	if not exe then return end
+	LAST_PROCESS_NO_CE = exe
+	exe = FIX_EXE_VARIABLE(exe)
+	LAST_PROCESS = exe
+	LAST_PARAMS = params
+	if not updaterate then updaterate = 10 end
+	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) end
+	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
+	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(10) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
+	while not IS_AVAILABLE(exe) do sleep(10) end
+	ShellExecute(STATIC_SUB_DIRECTORY(exe)..[[\]]..exe,params,GET_CURRENT_DIRECTORY())
+	HOOK_PROCESS(exe,updaterate)
+end
+
+function CREATE_PROCESS_NO_HOOK(path,exe,params)
+	ShellExecute(path..[[\]]..exe,params,path)
+end
+
+function CREATE_PROCESS_NO_HOOK_CUSTOM_PATH(path,exe,params,path2)
+	ShellExecute(path..[[\]]..exe,params,path2)
 end
 
 function ATTACH_PROCESS(procname)
