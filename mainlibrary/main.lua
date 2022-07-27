@@ -70,13 +70,13 @@ function ARE_AUTORUN_LUAS_AVAILABLE()
 	return GET_ALL_AUTORUN_LUAS()[1] or nil
 end
 
-function RUN_AUTORON_LUAS()
+function RUN_AUTORON_LUAS() --Autorun misspelt
 	for _,args in pairs(GET_ALL_AUTORUN_LUAS()) do dofile(args) end
 end
 
 function RELOAD_LUA_SCRIPTS()
 	DESTROY_ALL_TIMERS()
-	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end
+	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end --Autorun misspelt (how the heck did I do it twice)
 	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..DOFILE_FILE_NAME) end
 end
 
