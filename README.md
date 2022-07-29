@@ -5,8 +5,7 @@ Make stuff, compile stuff... Stuff! Originally made for allowing easy modding th
 # How do I compile?
 
 1. Download and install Cheat Engine 7.4
-2. "Download ZIP" on this repo and extract the files INSIDE the adorable-lua-framework-main folder somewhere. Do not extract the adorable-lua-framework-main folder itself, only the files within!!! Or else you will experience errors.
-
+2. "Download ZIP" on this repo and extract the files INSIDE the adorable-lua-framework-main folder somewhere.
 2.5 Run "applymain.exe" to apply the main library to all subdirectories (important!)
 3. Head into the "templategame" folder
 4. Run "scriptcompiler.exe" to compile all the lua scripts inside _lua (they're then copied to _luacompiled)
