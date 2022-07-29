@@ -6,17 +6,17 @@ Make stuff, compile stuff... Stuff! Originally made for allowing easy modding th
 
 1. Download and install Cheat Engine 7.4
 2. "Download ZIP" on this repo and extract the files INSIDE the adorable-lua-framework-main folder somewhere. Do NOT extract the dorable-lua-framework-main folder itself though!
-2.5 Run "applymain.exe" to apply the main library to all subdirectories (important!).
-3. Head into the "templategame" folder.
-4. Run "scriptcompiler.exe" to compile all the lua scripts inside _lua (they're then copied to _luacompiled)
-5. Open "template.ct" with Cheat Engine.
-6. Press the "Table" tab on the top of the program, then "Show Cheat Table Lua Script"
-7. Switch the "compiled" variable from false, to true and exit out of the Lua Editor.
-8. Press "File" in Cheat Engine, then "Save As..."
-9. Select the "Save as type" to be "Cheat Engine Trainer Standalone (*.EXE)" and click "Save"
-10. Select "Default" compression, Max is unnecessary and doesn't do that much.
-11. Press "Add folder", head over to the templategame folder and select "_luacompiled"
-12. Press "Generate" - This will generate the executable. It'll complain about the newly created software not having an icon, but I can recommend setting an icon using a software named "Resource Hacker". The built-in icon thingy in Cheat Engine is awful.
+3 Run "applymain.exe" to apply the main library to all subdirectories (important!).
+4. Head into the "templategame" folder.
+5. Run "scriptcompiler.exe" to compile all the lua scripts inside _lua (they're then copied to _luacompiled)
+6. Open "template.ct" with Cheat Engine.
+7. Press the "Table" tab on the top of the program, then "Show Cheat Table Lua Script"
+8. Switch the "compiled" variable from false, to true and exit out of the Lua Editor.
+9. Press "File" in Cheat Engine, then "Save As..."
+10. Select the "Save as type" to be "Cheat Engine Trainer Standalone (*.EXE)" and click "Save"
+11. Select "Default" compression, Max is unnecessary and doesn't do that much.
+12. Press "Add folder", head over to the templategame folder and select "_luacompiled"
+13. Press "Generate" - This will generate the executable. It'll complain about the newly created software not having an icon, but I can recommend setting an icon using a software named "Resource Hacker". The built-in icon thingy in Cheat Engine is awful.
 
 # What exactly can I do with this?
 
