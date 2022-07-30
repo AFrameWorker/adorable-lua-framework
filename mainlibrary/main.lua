@@ -8,12 +8,23 @@ function GET_CURRENT_SEED()
 end
 
 function GET_REGISTRY_VALUE(value)
-	return getSettings(LAST_PROCESS).Value[value] or nil
+	if getSettings(LAST_PROCESS).Value[value] == "" then return nil end
+	return getSettings(LAST_PROCESS).Value[value]
 end
 
 function SET_REGISTRY_VALUE(value,arg)
 	if not getSettings(LAST_PROCESS) then return end
 	getSettings(LAST_PROCESS).Value[value] = arg
+end
+
+function GET_REGISTRY_VALUE_CUSTOMKEY(key,value)
+	if getSettings(key).Value[value] == "" then return nil end
+	return getSettings(key).Value[value] or nil
+end
+
+function SET_REGISTRY_VALUE_CUSTOMKEY(key,value,arg)
+	if not getSettings(key) then return end
+	getSettings(key).Value[value] = arg
 end
 
 function CREATE_STATIC_DIRECTORY()
