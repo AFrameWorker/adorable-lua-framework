@@ -86,10 +86,16 @@ function ENUMERATE_SYMBOLS()
 	return true
 end
 
-function MAKE_FORM_TRANSPARENT(form)
+function MAKE_FORM_TRANSPARENT(form,transparency)
 	if not form then return end
-	form.setLayeredAttributes(0x000100, 255, LWA_COLORKEY )
-	form.Color = 0x000100
+	form.setLayeredAttributes(0x000000, transparency, 2 )
+	form.Color = 0x000000
+end
+
+function MAKE_FORM_TRANSPARENT_CLICKTHROUGH(form,transparency)
+	if not form then return end
+	form.setLayeredAttributes(0x000000, transparency, 1 )
+	form.Color = 0x000000
 end
 
 function ARE_BASE_MODULES_LOADED(exe)
@@ -327,5 +333,5 @@ end
 
 function DESTROY_ALL_TIMERS()
 	for _,timer in ipairs(timers) do timer.destroy() timer = nil end
-	timers = {}
+	--timers = {}
 end	
