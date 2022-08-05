@@ -144,15 +144,12 @@ function GET_CLASSNAME_FROM_FOREGROUND_WINDOW()
 end
 
 function FOCUS_PROCESS_WINDOW(classname,windowtitle)
-	--if not classname and not windowtitle then return end
-	if not classname then classname = windowtitle end
-	executeCodeLocalEx('user32.ShowWindow', findWindow(classname,nil), SW_MAXIMIZE)
+	executeCodeLocalEx('user32.SetForegroundWindow', findWindow(classname,windowtitle))
 end
 
-function CHANGE_PROCESS_WINDOW_TITLE(classname,text) --findwindow needs to contain either the classname or the current title.
+function CHANGE_PROCESS_WINDOW_TITLE(classname,windowtitle,text) --findwindow needs to contain either the classname or the current title.
 	if not text then return end
-	if not classname then return end
-	executeCodeLocalEx('user32.SetWindowTextA',findWindow(classname,nil), text)
+	executeCodeLocalEx('user32.SetWindowTextA',findWindow(classname,windowtitle), text)
 end
 
 function AUTORUN_LUA_DIR()
