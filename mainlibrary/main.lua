@@ -85,6 +85,11 @@ function RUN_AUTORON_LUAS() --meant to be named autorun, was a funny misspelling
 	for _,args in pairs(GET_ALL_AUTORUN_LUAS()) do dofile(args) end
 end
 
+function LOAD_LUA_SCRIPTS()
+	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end --Accidentally wrote it here too, therefore I never noticed it until someone told me about it.
+	if IS_DOFILE_AVAILABLE() and ALLOW_MANUALLY_DEFINED_LUA then dofile(LUA_DIR()..DOFILE_FILE_NAME) end
+end
+
 function RELOAD_LUA_SCRIPTS()
 	DESTROY_ALL_TIMERS()
 	if ALLOW_AUTORUN_LUA then RUN_AUTORON_LUAS() end --Accidentally wrote it here too, therefore I never noticed it until someone told me about it.
@@ -240,7 +245,7 @@ function onOpenProcess(processid)
 	reinitializeSymbolhandler()
 	waitForSections()
 	if LAST_PROCESS then INJECT_LIBRARIES(LAST_PROCESS) end
-	RELOAD_LUA_SCRIPTS()
+	LOAD_LUA_SCRIPTS()
 end
 
 function HOOK_PROCESS(exe,updaterate)
@@ -340,6 +345,6 @@ function DELAYED_CALL(int,name)
 end
 
 function DESTROY_ALL_TIMERS()
-	for _,timer in ipairs(timers) do timer.destroy() timer = nil end
+	for _,timer in pairs(timers) do timer.destroy() timer = nil end
 	--timers = {}
 end	
