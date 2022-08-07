@@ -7,6 +7,17 @@ function GET_CURRENT_SEED()
 	return curseed or nil	
 end
 
+function STRING_EXPLODE(inputstr, sep)
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		table.insert(t, str)
+	end
+	return t
+end
+
 function GET_REGISTRY_VALUE(value)
 	if getSettings(LAST_PROCESS).Value[value] == "" then return nil end
 	return getSettings(LAST_PROCESS).Value[value]
@@ -25,6 +36,21 @@ end
 function SET_REGISTRY_VALUE_CUSTOMKEY(key,value,arg)
 	if not getSettings(key) then return end
 	getSettings(key).Value[value] = arg
+end
+
+function DOES_FILE_EXIST(path,file)
+	return getFileList(path,file)[1] or nil
+end
+
+function DOES_FOLDER_EXIST(dir,dirtofind)
+	for _,v in pairs(getDirectoryList(dir)) do
+		if string.gsub(v,dir,"") == dirtofind then return dirtofind end
+	end
+	return nil
+end
+
+function CREATE_DIR_IN_CACHE(dir)
+	os.execute([[mkdir ]] .. [["]]..STATIC_DIRECTORY()..dir..[["]])
 end
 
 function CREATE_STATIC_DIRECTORY()
