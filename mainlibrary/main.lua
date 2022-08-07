@@ -257,6 +257,12 @@ function FIX_EXE_VARIABLE(exe)
 	return exe
 end
 
+function FIX_EXE_VARIABLE_ALT(exe)
+	exe = string.gsub(exe,".exe","")
+	exe = exe..[[.exe]]
+	return exe
+end
+
 function IS_AVAILABLE(exe)
 	return getFileList(STATIC_SUB_DIRECTORY(exe),exe)[1] or nil
 end
@@ -299,7 +305,7 @@ function CREATE_PROCESS(exe,params,updaterate)
 	LAST_PROCESS = exe
 	LAST_PARAMS = params
 	if not updaterate then updaterate = 10 end
-	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) end
+	if VERSION_NUMBER then SET_REGISTRY_VALUE("VERSION",VERSION_NUMBER) SET_REGISTRY_VALUE("PATH",GET_CURRENT_DIRECTORY()..FIX_EXE_VARIABLE_ALT(LAST_PROCESS_NO_CE)) end
 	if IS_GAME_RUNNING(exe) then messageDialog("ERROR","The game is already running!",mtError,mbOK) closeCE() return end
 	if not HAS_BEEN_SETUP then MAIN_Cleanup(exe) sleep(10) MAIN_Setup(exe) HAS_BEEN_SETUP = true end
 	while not IS_AVAILABLE(exe) do sleep(10) end
